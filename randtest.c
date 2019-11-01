@@ -4,7 +4,10 @@
 
 int main(int argc, char **argv) {
 	srand(time(NULL));
-	if (argc != 2) exit(1);
+	if (argc != 2) {
+		printf("Usage: %s <length>\n", argv[0]);
+		exit(1);
+	}
 	int n = atoi(argv[1]);
 	FILE *fout = fopen("test.in", "w");
 	fprintf(fout, "%i ", n);
