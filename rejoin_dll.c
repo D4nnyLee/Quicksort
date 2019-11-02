@@ -70,13 +70,13 @@ int main(int argc, char const *argv[]) {
 		tmp = tmp->next;
 		scanf("%d", &tmp->value);
 	}
-    long long int before = clock();
+	long long int before = clock();
 	header->next = quickSort(header->next);
-    long long int after = clock();
-    printf("time: %lf (ms)\n", (double)(after - before) / (CLOCKS_PER_SEC / 1000));
-    before = clock();
+	long long int after = clock();
+	printf("time: %lf (ms)\n", (double)(after - before) / (CLOCKS_PER_SEC / 1000));
+	before = clock();
 	header->next = quickSort(header->next);
-    after = clock();
-    printf("time: %lf (ms)\n", (double)(after - before) / (CLOCKS_PER_SEC / 1000));
+	after = clock();
+	printf("time: %lf (ms)\n", (double)(after - before) / (CLOCKS_PER_SEC / 1000));
 	return 0;
 }
