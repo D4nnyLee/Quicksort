@@ -3,20 +3,24 @@
 #include <time.h>
 #include <unistd.h>
 
+//#define DebugXOR
+
+//array quicksort
+void arr_swap(int *a, int *b) {
+	int tmp = *b;
+	*b = *a;
+	*a = tmp;
+}
+
 int arr_partition(int a[], int low, int high) {//auxiliary function of arr_quicksort
-	int pivot = a[high];
-	for(;;) {
-		while (low < high && a[low] <= pivot)
-			low++;
-		if (low == high) break;
-		a[high--] = a[low];
-		while (low < high && a[high] >= pivot)
-			high--;
-		if (low == high) break;
-		a[low++] = a[high];
-	}
-	a[low] = pivot;
-	return low;
+	int i = low;
+	for (int j = low + 1; j <= high; ++j)
+		if (a[j] < a[low]) {
+			++i;
+			arr_swap(a + i, a + j);
+		}
+	arr_swap(a + low, a + i);
+	return i;
 }
 
 void arr_quicksort(int a[], int low, int high) {
@@ -27,25 +31,19 @@ void arr_quicksort(int a[], int low, int high) {
 	arr_quicksort(a, pivot + 1, high);
 }
 
+void print_arr(int a[], int n) {
+	printf("arr:\n");
+	for (int i = 0; i < n; ++i)
+		printf("%i ", a[i]);
+	printf("\n");
+}
+//
+
+//sll quicksort
 typedef struct s{
 	int value;
 	struct s *next;
 } node;
-
-//for debug
-node *header;
-int find_pos(node *n) {
-	node *tmp = header;
-	int i;
-	for (i = 0; tmp;) {
-		tmp = tmp -> next;
-		++i;
-		if (n == tmp) break;
-	}
-	if(tmp) return i;
-	else return 0;
-}
-//
 
 node *create_sll(int n) {//scan n numbers
 	node *ret = malloc(sizeof(node));
@@ -63,18 +61,22 @@ node *create_sll(int n) {//scan n numbers
 }
 
 void print_sll(node *header) {
+	printf("sll:\n");
 	for (header = header -> next; header; header = header -> next)
 		printf("%i ", header -> value);
 	printf("\n");
 }
 
 void swap(node *i, node *j) {//swap values in two nodes
+#ifdef DebugXOR
+	i -> value ^= j -> value;
+	j -> value ^= i -> value;
+	i -> value ^= j -> value;
+#else
 	int tmp = i -> value;
 	i -> value = j -> value;
 	j -> value = tmp;
-	/*i -> value ^= j -> value;
-	j -> value ^= i -> value;
-	i -> value ^= j -> value;*/
+#endif
 }
 
 void partition(node *front, node *rear, node **nr_ptr, node **nf_ptr) {
@@ -83,15 +85,27 @@ void partition(node *front, node *rear, node **nr_ptr, node **nf_ptr) {
 		if (j -> value < front -> value) {
 			*nr_ptr = i;
 			i = i -> next;
+#ifdef DebugXOR
+printf("%i, %i\n", i -> value, j -> value);
+#endif
 			swap(i, j);
+#ifdef DebugXOR
+printf("%i, %i\n", i -> value, j -> value);
+sleep(1);
+#endif
 		}
+#ifdef DebugXOR
+printf("%i, %i\n", front -> value, i -> value);
+#endif
 	swap(front, i);//swap pivot to the end of smaller data
+#ifdef DebugXOR
+printf("%i, %i\n", front -> value, i -> value);
+sleep(1);
+#endif
 	if(i != rear) *nf_ptr = i -> next;
 }
 
 void r_quicksort(node *front, node *rear) {
-	//printf("pos:%i %i\n", find_pos(front), find_pos(rear));
-	//sleep(1);
 	if (front == rear) return ;//only one node left
 
 	node *next_rear = 0, *next_front = 0;
@@ -108,43 +122,38 @@ void quicksort(node *header) {//deal with header node
 	for(; rear -> next; rear = rear -> next) ;
 	r_quicksort(front, rear);
 }
+//
 
 int main() {
 	int n;
 	scanf("%i", &n);//number of data
 
 	node *s = malloc(sizeof(node));
-	s -> next = create_sll(n);//input n numbers
+	s -> next = create_sll(n);//read n numbers
 
-	int *arr;//copy data to array
+	int *arr;
 	arr = malloc(n * sizeof(int));
 	node *cpy = s -> next;
-	for(int i = 0; cpy; cpy = cpy -> next, ++i)
+	for(int i = 0; cpy; cpy = cpy -> next, ++i)//copy to array
 		arr[i] = cpy -> value;
-
-	header = s;
 
 	long long int t0 = clock();
 	quicksort(s);//sll quicksort by swapping
 	long long int t1 = clock();
-
-	printf("sll:\n");
-	print_sll(s);
+	//print_sll(s);//for checking the result after sll quicksort
 
 	long long int t2 = clock();
 	arr_quicksort(arr, 0, n - 1);//array quicksort
 	long long int t3 = clock();
+	//print_arr(arr, n);//for checking the result after array quicksort
 
-	//for (int i = 0; i < n; ++i) printf("%i ", arr[i]);
-
-	long long int t4 = clock();
-	arr_quicksort(arr, 0, n - 1);//array quicksort
-	long long int t5 = clock();
-
-	printf("time:%lf(ms)\n", (double)(t1 - t0) / (CLOCKS_PER_SEC / 1000));//time of sll quicksort
-	printf("time:%lf(ms)\n", (double)(t3 - t2) / (CLOCKS_PER_SEC / 1000));//time of array quicksort
-	printf("time(worst case):%lf(ms)\n", (double)(t5 - t4) / (CLOCKS_PER_SEC / 1000));//worst case of quicksort
-	printf("times:%lf\n", (double)(t1-t0)/(t3-t2));
+#ifndef DebugXOR
+	printf("swapping_sll quicksort : %lf(ms)\n", (double)(t1 - t0) / (CLOCKS_PER_SEC / 1000));//time of sll quicksort
+	printf("array quicksort in the same manner : %lf(ms)\n", (double)(t3 - t2) / (CLOCKS_PER_SEC / 1000));//time of array quicksort
+	printf("sll/arr(times) : %lf\n", (double)(t1-t0) / (t3-t2));
+#else
+	print_sll(s);
+#endif
 
 	return 0;
 }
