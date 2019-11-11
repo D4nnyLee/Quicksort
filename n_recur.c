@@ -40,24 +40,19 @@ int main() {
 		scanf("%i", &arr1[i]);
 		arr2[i] = arr1[i];
 	}
-	for (int i = 0; i < n; ++i) printf("%i ", arr1[i]);
-		printf("\n");
-	long long int t0 = clock();
+	/*for (int i = 0; i < n; ++i) printf("%i ", arr1[i]);
+		printf("\n");*/
 
+	long long int t0 = clock();
 	quicksort(arr1, 0, n - 1);//array quicksort
 	long long int t1 = clock();
 
-	arr_quicksort(arr2, 0, n - 1);//array quicksort
 	long long int t2 = clock();
-
-	//for (int i = 0; i < n; ++i) printf("%i ", arr[i]);
 	arr_quicksort(arr2, 0, n - 1);//array quicksort
 	long long int t3 = clock();
 
 	printf("time:%lf(ms)\n", (double)(t1 - t0) / (CLOCKS_PER_SEC / 1000));
-	printf("time:%lf(ms)\n", (double)(t2 - t1) / (CLOCKS_PER_SEC / 1000));
-	printf("time(worst case):%lf(ms)\n", (double)(t3 - t2) / (CLOCKS_PER_SEC / 1000));
-
-	printf("times:%lf\n", (double)(t1-t0)/(t2-t1));
+	printf("time:%lf(ms)\n", (double)(t3 - t2) / (CLOCKS_PER_SEC / 1000));
+	printf("times:%lf\n", (double)(t1-t0)/(t3-t2));
 	return 0;
 }
